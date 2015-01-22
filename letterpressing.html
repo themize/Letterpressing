@@ -3,11 +3,30 @@
 <body>
 	<h1>Letterpressing</h1>
 	<button type="button" 
-	onclick="findMatches()">
+	onclick="testFill()">
 	Try me.</button>
 	<p id="demo"></p>
 
 <script type="text/javascript">
+function testTime() {
+	console.time("alphabetize1");
+	for (i = 0; i < 300000; i++) {
+		alphabetize1("abcdefghijklmnopqrstuvwxyz");
+	}
+	console.timeEnd("alphabetize1");
+	console.time("alphabetize2");
+	for (i = 0; i < 300000; i++) {
+		alphabetize2("abcdefghijklmnopqrstuvwxyz");
+	}
+	console.timeEnd("alphabetize2");
+}
+function testFill() {
+	testTime();
+
+	// TESTING: swap out whatever test function here, and stick the output in the "demo" p-tag
+	document.getElementById("demo").innerHTML = alphabetize1("abcdefghijklmnopqrstuvwxyz");
+}
+
 function findMatches() {
 	var boardLetters = "abcdettpippaenkuy"; // all the letters on the board
 	var boardSorted  = "aabcdeeiknpppttuy"; // the board sorted alphabetically
@@ -36,7 +55,7 @@ function findMatches() {
 		}
 	}
 
-	document.getElementById("demo").innerHTML = output; // TESTING: stick the regex in the "demo" p-tag
+	return output;
 }
 
 function wordSortedPattern(wordSorted) {
@@ -47,6 +66,38 @@ function wordSortedPattern(wordSorted) {
 		pattern = pattern + wordSorted.charAt(l) + "\\w*";
 	}
 	return pattern;
+}
+
+function alphabetize2(word) {
+	// alphabet of regexes
+	var alphabetRegex = [/a/g,/b/g,/c/g,/d/g,/e/g,/f/g,/g/g,/h/g,/i/g,/j/g,/k/g,/l/g,/m/g,/n/g,/o/g,/p/g,/q/g,/r/g,/s/g,/t/g,/u/g,/v/g,/w/g,/x/g,/y/g,/z/g]
+	var alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+	var wordAlphabetized = "";
+	for (l = 0; l < alphabet.length; l++) {
+		//var letterRegex = RegExp(alphabet[l],"g");
+		var matches = word.match(alphabetRegex[l]);
+		if (matches) {
+			for (count = 0; count < matches.length; count++) {
+				wordAlphabetized = wordAlphabetized + alphabet[l];
+			}
+		}
+	}
+	return wordAlphabetized;
+}
+
+function alphabetize1(word) {
+	var alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+	var wordAlphabetized = "";
+	for (l = 0; l < alphabet.length; l++) {
+		var letterRegex = RegExp(alphabet[l],"g");
+		var matches = word.match(letterRegex);
+		if (matches) {
+			for (count = 0; count < matches.length; count++) {
+				wordAlphabetized = wordAlphabetized + alphabet[l];
+			}
+		}
+	}
+	return wordAlphabetized;
 }
 </script>
 
