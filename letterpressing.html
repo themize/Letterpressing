@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<h1>Letterpressing</h1>
+	<button type="button" 
+	onclick="findMatches()">
+	Try me.</button>
+	<p id="demo"></p>
+
+<script type="text/javascript">
+function findMatches() {
+	var boardLetters = "abcdettpippaenkuy"; // all the letters on the board
+	var boardSorted  = "aabcdeeiknpppttuy"; // the board sorted alphabetically
+	var dictionary = 
+		["cat","dog","rat","bat","puppy","kitten","iguana","emu"]; // dictionary of allowed words
+	var dictionarySorted = 
+		["act","dgo","art","abt","pppuy","eikntt","aaginu","emu"]; // dictionary of allowed words, with each word sorted alphabetically (indexed to match corresponding value of the dictionary array)
+
+	var dictionaryMatches = []; // array to hold matching words 
+
+	var output = ""; // TESTING: string for outputting matches
+	var outputRegexes = ""; // TESTING: string for regexes
+
+	// go through every word in the dictionary
+	for (w = 0; w < dictionarySorted.length; w++) {
+		var wordSorted = dictionarySorted[w]; // grab the current word's letters for simplicity
+		
+		// construct the regex to check for this word
+		var pattern = wordSortedPattern(wordSorted);
+		var wordRegex = new RegExp(pattern); // convert our string pattern into a regex object
+
+		// check whether we can make the word with the board's letters
+		if (boardSorted.search(wordRegex) >= 0) {
+			dictionaryMatches[dictionaryMatches.length] = dictionary[w]; // on match, add the word to our list of matches
+			output = output + " " + dictionary[w]; // TESTING: add the matched words to our test string
+		}
+	}
+
+	document.getElementById("demo").innerHTML = output; // TESTING: stick the regex in the "demo" p-tag
+}
+
+function wordSortedPattern(wordSorted) {
+	var pattern = "\\w*"; // start with the all-letters wildcard, we need the slash to show up in the string for when we convert it to a RegExp
+	// loop through each letter in the word
+	for (l = 0; l < wordSorted.length; l++) {
+		// require the letter, then allow anything between it and the next required letter
+		pattern = pattern + wordSorted.charAt(l) + "\\w*";
+	}
+	return pattern;
+}
+</script>
+
+</body>
+</html>
