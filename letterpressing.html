@@ -1,13 +1,72 @@
 <!DOCTYPE html>
 <html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+</head>
 <body>
 	<h1>Letterpressing</h1>
 	<button type="button" 
-	onclick="testFill()">
+	onclick="testFindMatches()">
 	Try me.</button>
-	<p id="demo"></p>
+	<div id="test info">
+		<p id="board"></p>
+		<ul id="allowedWords"></ul>
+	</div>
+	<div id ="demo"></div>
 
 <script type="text/javascript">
+var dictionary = []; // dictionary of available words, will be pulled from words.txt
+var dictionaryAlphabetized = []; // alphabetized strings from dictionary[]
+
+var allowedWords = []; // words from dictionary that match the letters on the board
+var allowedWordsAlphabetized = []; // alphabetized strings from allowedWords[]
+
+var boardLetters = ""; // letters from the board, taken from input, in order by rows and left to right
+var boardLettersAlphabetized = ""; // letters from the board alphabetized
+
+// example boards, ordered by letter appearance (first 5 letters are first row, etc)
+var boardExample0 = "XOXAPRDJGEKJUREVTGONXSYNS";
+var boardExample1 = "DECZIHHSSBLNAYWOPHEOSIPNO";
+var boardExample2 = "GNGCEIREDRPVTEAEOQCWGBBUB";
+var boardExample3 = "MKLLGNEZSNEEFPUDCPRRFAUCE";
+var boardExample4 = "BWXPFMIXNEWRAUTCDKMPNFEFT";
+var boardExample5 = "OCIWVZVAGYAOYGZZONPSEHKYO";
+var boardExample6 = "EPPSPMATNFGPYCEVGDKZSEBYT";
+var boardExample7 = "TLPGSRLNNEDIHRMRPLDRJZFPI";
+var boardExample8 = "KSEDETYTCITHLTKSVBHGVNDRT";
+
+function testFindMatches() {
+	$.get("en.txt", function(data){
+		boardLetters = boardExample5;
+		boardLettersAlphabetized = alphabetize2(boardLetters);
+		dictionary = data.split("\n");
+		for (i = 0; i < dictionary.length; i++) {
+			dictionaryAlphabetized[i] = alphabetize2(dictionary[i]);
+			var pattern = wordSortedPattern(dictionaryAlphabetized[i]);
+			var wordRegex = new RegExp(pattern,"i");
+			if (boardLettersAlphabetized.search(wordRegex) >= 0) {
+				allowedWords[allowedWords.length] = dictionary[i];
+			}
+		}
+		$("#board").text(boardLetters);
+		for (i = 0; i < allowedWords.length; i++) {
+			var wordLi = "<li>"+allowedWords[i]+"</li>";
+			$("#allowedWords").append(wordLi);
+		}
+
+	}, "text")
+}
+
+function testFileGet() {
+	$.get("en.txt", function(data){
+		dictionary = data.split("\n");
+		for (i = 0; i < dictionary.length; i++) {
+			dictionaryAlphabetized[i] = alphabetize2(dictionary[i]);
+		}
+		alert("Done: " + dictionaryAlphabetized.length);
+	}, "text");
+}
+
 function testTime() {
 	console.time("alphabetize1");
 	for (i = 0; i < 300000; i++) {
@@ -21,16 +80,17 @@ function testTime() {
 	console.timeEnd("alphabetize2");
 }
 function testFill() {
-	testTime();
+	//testTime();
 
 	// TESTING: swap out whatever test function here, and stick the output in the "demo" p-tag
 	document.getElementById("demo").innerHTML = alphabetize1("abcdefghijklmnopqrstuvwxyz");
+	document.getElementById("demo").innerHTML = alphabetize1(boardExample5);
 }
 
 function findMatches() {
 	var boardLetters = "abcdettpippaenkuy"; // all the letters on the board
 	var boardSorted  = "aabcdeeiknpppttuy"; // the board sorted alphabetically
-	var dictionary = 
+	var dictionaryAllowed = 
 		["cat","dog","rat","bat","puppy","kitten","iguana","emu"]; // dictionary of allowed words
 	var dictionarySorted = 
 		["act","dgo","art","abt","pppuy","eikntt","aaginu","emu"]; // dictionary of allowed words, with each word sorted alphabetically (indexed to match corresponding value of the dictionary array)
@@ -50,8 +110,8 @@ function findMatches() {
 
 		// check whether we can make the word with the board's letters
 		if (boardSorted.search(wordRegex) >= 0) {
-			dictionaryMatches[dictionaryMatches.length] = dictionary[w]; // on match, add the word to our list of matches
-			output = output + " " + dictionary[w]; // TESTING: add the matched words to our test string
+			dictionaryMatches[dictionaryMatches.length] = dictionaryAllowed[w]; // on match, add the word to our list of matches
+			output = output + " " + dictionaryAllowed[w]; // TESTING: add the matched words to our test string
 		}
 	}
 
@@ -70,7 +130,7 @@ function wordSortedPattern(wordSorted) {
 
 function alphabetize2(word) {
 	// alphabet of regexes
-	var alphabetRegex = [/a/g,/b/g,/c/g,/d/g,/e/g,/f/g,/g/g,/h/g,/i/g,/j/g,/k/g,/l/g,/m/g,/n/g,/o/g,/p/g,/q/g,/r/g,/s/g,/t/g,/u/g,/v/g,/w/g,/x/g,/y/g,/z/g]
+	var alphabetRegex = [/a/gi,/b/gi,/c/gi,/d/gi,/e/gi,/f/gi,/g/gi,/h/gi,/i/gi,/j/gi,/k/gi,/l/gi,/m/gi,/n/gi,/o/gi,/p/gi,/q/gi,/r/gi,/s/gi,/t/gi,/u/gi,/v/gi,/w/gi,/x/gi,/y/gi,/z/gi];
 	var alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
 	var wordAlphabetized = "";
 	for (l = 0; l < alphabet.length; l++) {
@@ -89,7 +149,7 @@ function alphabetize1(word) {
 	var alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
 	var wordAlphabetized = "";
 	for (l = 0; l < alphabet.length; l++) {
-		var letterRegex = RegExp(alphabet[l],"g");
+		var letterRegex = RegExp(alphabet[l],"gi");
 		var matches = word.match(letterRegex);
 		if (matches) {
 			for (count = 0; count < matches.length; count++) {
