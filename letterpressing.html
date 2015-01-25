@@ -35,15 +35,95 @@ var boardExample6 = "EPPSPMATNFGPYCEVGDKZSEBYT";
 var boardExample7 = "TLPGSRLNNEDIHRMRPLDRJZFPI";
 var boardExample8 = "KSEDETYTCITHLTKSVBHGVNDRT";
 
+/** 
+ * Get a list of playable words
+ * @param {Array.<string>} dictionary A list of allowed words
+ * @param {string} board A string of the playable letters
+ * @return {Array.<string>} A list of words that can be played on this board
+ */ 
+function findPlayableWords(dictionary, board) {
+	// alphabetize the board letters
+	var boardAlphabetized = alphabetize(board);
+	var playableWords = []; // list of playable words to return
+
+	// check each word in the dictionary against the board
+	for (i = 0; i < dictionary.length; i++) {
+		currentWord = dictionary[i];
+		// skip if there's a blank entry in the dictionary
+		if (currentWord == null || currentWord == "") {
+			continue;
+		}
+		// alphabetize the current word
+		var currentAlphabetized = alphabetize(currentWord);
+
+		// if the word is playable, add it to the list
+		if (checkPlayableAlphabetized(currentAlphabetized, boardAlphabetized)) {
+			playableWords[playableWords.length] = currentWord;
+		}
+	}
+	// return the list
+	return playableWords;
+}
+
+/**
+ * Check whether the input word can be played using letters from the input board
+ * @param {string} wordAlphabetized The letters for the word to check in
+ *     alphabetical order
+ * @param {string} boardAlphabetized The letters on the board that can be
+ *     played in alphabetical order
+ * @return {boolean} Return true if all the letters in the input word are 
+ *     present in the board, false otherwise
+ */
+function checkPlayableAlphabetized(wordAlphabetized, boardAlphabetized) {
+	// create the regex for the dictionary word
+	var wordRegex = wordSortedRegex(wordAlphabetized);
+	// check whether there's a match for the regex
+	if (boardAlphabetized.search(wordRegex) >= 0) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**
+ * Construct a regex for the input letters for matching against board
+ * @param {string} wordSorted Letters for the word (already alphabetized)
+ * @return {RegExp} A regex to check against a board
+ */
+function wordSortedRegex(wordSorted) {
+	var pattern = "\\w*"; // start with the all-letters wildcard, we need the slash to show up in the string for when we convert it to a RegExp
+	// loop through each letter in the word
+	for (l = 0; l < wordSorted.length; l++) {
+		// require the letter, then allow anything between it and the next required letter
+		pattern = pattern + wordSorted.charAt(l) + "\\w*";
+	}
+	var wordRegex = new RegExp(pattern, "i");
+	return wordRegex;
+}
+
+/**
+ * Get the letters of an input string rearranged in alphabetical order, 
+ *     including repeated letters with the same number
+ * @param {string} word A word or string to be alphabetized
+ * @return {string} The letters of the input word but in alphabetical order
+ */
+function alphabetize(word) {
+	// currently just use one of my test methods, replace with the fastest method
+	return alphabetize2(word);
+}
+
 function testFindMatches() {
 	$.get("en.txt", function(data){
 		boardLetters = boardExample5;
 		boardLettersAlphabetized = alphabetize2(boardLetters);
 		dictionary = data.split("\n");
 		for (i = 0; i < dictionary.length; i++) {
+			if (dictionary[i] == null || dictionary[i] == "") {
+				dictionaryAlphabetized[i] = "";
+				continue; // skip the blank word at the end of the en.text file
+			}
 			dictionaryAlphabetized[i] = alphabetize2(dictionary[i]);
-			var pattern = wordSortedPattern(dictionaryAlphabetized[i]);
-			var wordRegex = new RegExp(pattern,"i");
+			var wordRegex = wordSortedRegex(dictionaryAlphabetized[i]);
 			if (boardLettersAlphabetized.search(wordRegex) >= 0) {
 				allowedWords[allowedWords.length] = dictionary[i];
 			}
@@ -116,16 +196,6 @@ function findMatches() {
 	}
 
 	return output;
-}
-
-function wordSortedPattern(wordSorted) {
-	var pattern = "\\w*"; // start with the all-letters wildcard, we need the slash to show up in the string for when we convert it to a RegExp
-	// loop through each letter in the word
-	for (l = 0; l < wordSorted.length; l++) {
-		// require the letter, then allow anything between it and the next required letter
-		pattern = pattern + wordSorted.charAt(l) + "\\w*";
-	}
-	return pattern;
 }
 
 function alphabetize2(word) {
