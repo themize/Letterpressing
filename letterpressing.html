@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<title>Letterpressed</title>
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	<style>
+		body {
+			background-color: #F0EFEC;
+			font-family: Calibri, Tahoma, Geneva, sans-serif;
+		}
+	</style>
 </head>
 <body>
 	<h1>Letterpressing</h1>
+	<input type="text" id="boardLetters"></input>
 	<button type="button" 
-	onclick="testFindMatches()">
+	onclick="testing()">
 	Try me.</button>
 	<div id="test info">
 		<p id="board"></p>
@@ -53,6 +63,8 @@ function findPlayableWords(dictionary, board) {
 		if (currentWord == null || currentWord == "") {
 			continue;
 		}
+		
+		/*
 		// alphabetize the current word
 		var currentAlphabetized = alphabetize(currentWord);
 
@@ -60,9 +72,35 @@ function findPlayableWords(dictionary, board) {
 		if (checkPlayableAlphabetized(currentAlphabetized, boardAlphabetized)) {
 			playableWords[playableWords.length] = currentWord;
 		}
+		*/
+
+		if (checkPlayable(currentWord, boardAlphabetized)) {
+			playableWords[playableWords.length] = currentWord;
+		}
 	}
 	// return the list
 	return playableWords;
+}
+
+/**
+ * Check whether the input word can be played using letters from the input board,
+ *     requires the input board to be alphabetized, does not require the input
+ *     word to be alphabetized
+ * @param {string} word The letters for the word to check, order doesn't matter
+ * @param {string} boardAlphabetized The letters on the board that can be
+ *     played in alphabetical order
+ * @return {boolean} Return true if all the letters in the input word are 
+ *     present in the board, false otherwise
+ */
+function checkPlayable(word, boardAlphabetized) {
+	// create the regex for the dictionary word
+	var wordRegex = alphabetizedRegex(word);
+	// check whether there's a match for the regex
+	if (boardAlphabetized.search(wordRegex) >= 0) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 /**
@@ -109,7 +147,49 @@ function wordSortedRegex(wordSorted) {
  */
 function alphabetize(word) {
 	// currently just use one of my test methods, replace with the fastest method
-	return alphabetize2(word);
+	return alphabetize3(word);
+}
+
+/**
+ * Constructs an alphabetized regex for the input letters to be used to
+ *     match against the board
+ * @param {string} word Letters for the word (order doesn't matter)
+ * @return {RegExp} A regex to check against the board
+ */
+function alphabetizedRegex(word) {
+	var wordArray = word.split(""); // turn the word into an array of the letters
+	wordArray.sort(); // sort the array (in place) alphabetically
+	var pattern =  "\\w*" + wordArray.join("\\w*") + "\\w*"; // join the array of letters back into a string, separated by the wildcard character.
+	return RegExp(pattern, "i"); // turn the pattern into a regex
+}
+
+/**
+ * Comparison function for ordering words by score from highest to lowest
+ * @param {string} word0 First word to compare
+ * @param {string} word1 Second word to compare
+ * @return {number} A negative value if word0 comes before word1, postive otherwise
+ */ 
+function scoreSort(word0, word1) {
+	if (word0.length == word1.length) {
+		return word0.localeCompare(word1); // if same length alphabetize
+	} else {
+		return word1.length - word0.length; // else compare by length
+	}
+}
+
+function testing() {
+	$.get("en.txt", function(data){
+		board = $("#boardLetters").val();
+		dictionary = data.split("\n");
+		allowedWords = findPlayableWords(dictionary,board);
+		$("#board").text(board + ": " + allowedWords.length + " allowed words");
+		
+		allowedWords.sort( scoreSort ); // sort the words by length
+
+		for (i=0; i < allowedWords.length; i++) {
+			$("#allowedWords").append("<li>"+allowedWords[i]+"</li>");
+		}
+	}, "text");
 }
 
 function testFindMatches() {
@@ -134,7 +214,7 @@ function testFindMatches() {
 			$("#allowedWords").append(wordLi);
 		}
 
-	}, "text")
+	}, "text");
 }
 
 function testFileGet() {
@@ -149,15 +229,21 @@ function testFileGet() {
 
 function testTime() {
 	console.time("alphabetize1");
-	for (i = 0; i < 300000; i++) {
+	for (i = 0; i < 100000; i++) {
 		alphabetize1("abcdefghijklmnopqrstuvwxyz");
 	}
 	console.timeEnd("alphabetize1");
 	console.time("alphabetize2");
-	for (i = 0; i < 300000; i++) {
+	for (i = 0; i < 100000; i++) {
 		alphabetize2("abcdefghijklmnopqrstuvwxyz");
 	}
 	console.timeEnd("alphabetize2");
+	console.time("alphabetize3");
+	for (i = 0; i < 100000; i++) {
+		alphabetize3("abcdefghijklmnopqrstuvwxyz");
+	}
+	console.timeEnd("alphabetize3");
+	alert(alphabetize3("incentivize"));
 }
 function testFill() {
 	//testTime();
@@ -196,6 +282,12 @@ function findMatches() {
 	}
 
 	return output;
+}
+
+function alphabetize3(word) {
+	var wordArray = word.split(""); // turn the word into an array of the letters
+	wordArray.sort(); // sort the array (in place) alphabetically
+	return wordArray.join(""); // join the array of letters back into a string
 }
 
 function alphabetize2(word) {
