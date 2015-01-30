@@ -2,9 +2,7 @@
 <html>
 <head>
 	<title>Letterpressed</title>
-	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 	<style>
 		body {
 			background-color: #F0EFEC;
@@ -177,7 +175,55 @@ function scoreSort(word0, word1) {
 	}
 }
 
+function testTimeAlphabetizing() {
+	console.time("file_read");
+	$.get("en.txt", function(data){
+		console.timeEnd("file_read");
+		var board = boardExample5;
+		console.time("data_split")
+		var dictionary = data.split("\n");
+		console.timeEnd("data_split");
+
+		console.time("alphabetize_board");
+		var boardAlphabetized = alphabetize(board);
+		console.timeEnd("alphabetize_board");
+		var allowedWords = []; // list of playable words to return
+
+		
+		/*console.time("create_patterns");
+		var patterns = [];
+		for (i = 0; i < dictionary.length; i++) {
+			word = dictionary[i];
+			var wordArray = word.split(""); // turn the word into an array of the letters
+			wordArray.sort(); // sort the array (in place) alphabetically
+			patterns[i] =  "\\w*" + wordArray.join("\\w*") + "\\w*";
+		}
+		console.timeEnd("create_patterns");
+
+		console.time("regex_check");
+		for (i = 0; i < dictionary.length; i++) {
+			wordRegex = RegExp(patterns[i], "i");
+			if (boardAlphabetized.search(wordRegex) >= 0) {
+				allowedWords[allowedWords.length] = dictionary[i];
+			} 
+		}
+		console.timeEnd("regex_check");
+
+
+		$("#board").text(board + ": " + allowedWords.length + " allowed words");
+		
+		allowedWords.sort( scoreSort ); // sort the words by length
+		console.time("allowe_words_print");
+		for (i=0; i < allowedWords.length; i++) {
+			$("#allowedWords").append("<li>"+allowedWords[i]+"</li>");
+		}
+		console.timeEnd("allowe_words_print");*/
+
+	}, "text");
+}
+
 function testing() {
+	$("#board").text("Give it time...");
 	$.get("en.txt", function(data){
 		board = $("#boardLetters").val();
 		dictionary = data.split("\n");
