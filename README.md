@@ -1,5 +1,5 @@
 # Letterpressing
-Find playable words in a game of Letterpress
+Find playable words in a game of Letterpress. Test at http://themize.github.io/Letterpressing/
 
 Type in the letters of the board (or honestly, any string of letters) and it will check them against the dictionary. It will produce a list of all the words in the Letterpress dictionary that can be made using those letters, ordered by length.
 
